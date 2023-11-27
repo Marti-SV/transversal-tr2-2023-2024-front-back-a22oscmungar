@@ -1,3 +1,4 @@
+//IMPORTAR MODULOS
 const express = require("express");
 const app = express();
 const port = 3751;
@@ -6,11 +7,27 @@ const mysql = require("mysql2");
 const bodyParser = require("body-parser");
 const { Server } = require("socket.io");
 const http = require("http");
-
 const { join } = require('path');
-
 const server = http.createServer(app);
 
+//REDIRECCIONAR AL INDEX.HTML
+app.get('/', (req, res) => {
+	res.sendFile(join(__dirname, 'index.html'));
+  });
+
+//PARTE DEL SOCKET.IO
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on('connection', (socket) => {
+	console.log('a user connected');
+  });
+
+  //PARTE DE LA BASE DE DATOS
 var conn = mysql.createPool({
   host: "dam.inspedralbes.cat",
   user: "a22oscmungar_proyecto2",
@@ -38,22 +55,7 @@ app.use(
 
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-	res.sendFile(join(__dirname, 'index.html'));
-  });
-
-  
-
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
-
-io.on('connection', (socket) => {
-	console.log('a user connected');
-  });
+//PARTE DE LAS RUTAS
 
 //ruta para obtener todos los usuarios de una clase
 app.get("/classe/:idClasse", (req, res) => {
